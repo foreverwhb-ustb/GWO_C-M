@@ -1,11 +1,11 @@
-%pop¡ª¡ªÖÖÈºÊıÁ¿
-%dim¡ª¡ªÎÊÌâÎ¬¶È
-%ub¡ª¡ª±äÁ¿ÉÏ½ç£¬[1,dim]¾ØÕó
-%lb¡ª¡ª±äÁ¿ÏÂ½ç£¬[1,dim]¾ØÕó
-%fobj¡ª¡ªÊÊÓ¦¶Èº¯Êı£¨Ö¸Õë£©
-%MaxIter¡ª¡ª×î´óµü´ú´ÎÊı
-%Best_Pos¡ª¡ªxµÄ×î¼ÑÖµ
-%Best_Score¡ª¡ª×îÓÅÊÊÓ¦¶ÈÖµ
+%popâ€”â€”ç§ç¾¤æ•°é‡
+%dimâ€”â€”é—®é¢˜ç»´åº¦
+%ubâ€”â€”å˜é‡ä¸Šç•Œï¼Œ[1,dim]çŸ©é˜µ
+%lbâ€”â€”å˜é‡ä¸‹ç•Œï¼Œ[1,dim]çŸ©é˜µ
+%fobjâ€”â€”é€‚åº”åº¦å‡½æ•°ï¼ˆæŒ‡é’ˆï¼‰
+%MaxIterâ€”â€”æœ€å¤§è¿­ä»£æ¬¡æ•°
+%Best_Posâ€”â€”xçš„æœ€ä½³å€¼
+%Best_Scoreâ€”â€”æœ€ä¼˜é€‚åº”åº¦å€¼
 clear;
 close all;
 
@@ -14,7 +14,7 @@ pop=200;
 crossProb=0.3;
 mutationProb=0.6;
 MaxIter=1000;
-%fobj=@(x)fitness1(x);%ÉèÖÃÊÊÓ¦¶Èº¯Êı
+%fobj=@(x)fitness1(x);%è®¾ç½®é€‚åº”åº¦å‡½æ•°
 
 
 %VAGWO
@@ -27,7 +27,7 @@ c_min=0; % Lower bound of the leading wolves multipliers
 elitism=1;% elitism=1: Elitism is applied; elitism=any other number: Elitism is not applied 
 limvel=0.1;
 
-%·Ö×é²ßÂÔ
+%åˆ†ç»„ç­–ç•¥
 group_num=8;
 
 time1(nexp)=inf;
@@ -50,12 +50,12 @@ time17(nexp)=inf;
 time18(nexp)=inf;
 
 
-%Êä³ö½á¹ûµ½ÎÄ¼şÖĞ
-filename='output_1030.txt';
+%è¾“å‡ºç»“æœåˆ°æ–‡ä»¶ä¸­
+filename='output.txt';
 fid=fopen(filename,'a');
 
-for fn=33:33
-    %È·¶¨ÊÊÓ¦¶Èº¯Êı
+for fn=1:1
+    %ç¡®å®šé€‚åº”åº¦å‡½æ•°
     function_name=['F', num2str(fn)];
     fobj=str2func(function_name);
 
@@ -70,10 +70,10 @@ for fn=33:33
     velmax=limvel*(varmax(1,1:dim)-varmin(1,1:dim)); % Upper bound defined for the velocities
     velmin=-velmax; % Lower bound defined for the velocities
 
-    %nexp´Î¶ÀÁ¢ÊµÑé
+    %nexpæ¬¡ç‹¬ç«‹å®éªŒ
     for i=1:nexp
     
-         fprintf("nexp£º%f\n",i);
+         fprintf("nexpï¼š%f\n",i);
 
         tic;
         [Best_Pos,Best_Score,IterCurve]=GWO(pop,dim,ub,lb,fobj,MaxIter);
@@ -131,7 +131,7 @@ for fn=33:33
         [Best_score_sa, IterCurve_sa] = SaPSO(pop, MaxIter, lb, ub, dim, fobj);
         time18(i)=toc;
 
-%       µÚi´ÎÊµÑéÖĞ£¬Ã¿ÂÖµü´úµÄ×îÓÅÊÊÓ¦¶ÈÖµ
+%       ç¬¬iæ¬¡å®éªŒä¸­ï¼Œæ¯è½®è¿­ä»£çš„æœ€ä¼˜é€‚åº”åº¦å€¼
         Iter(i,:)=IterCurve;
         Iter_C(i,:)=IterCurve_C;
         Iter_M(i,:)=IterCurve_M;
@@ -174,27 +174,27 @@ for fn=33:33
 
     end 
 
-    fprintf("time1£º%f\n",sum(time1));
-    fprintf("time2£º%f\n",sum(time2));
-    fprintf("time3£º%f\n",sum(time3));
-    fprintf("time4£º%f\n",sum(time4));
-    fprintf("time5£º%f\n",sum(time5));
-    fprintf("time6£º%f\n",sum(time6));
-    fprintf("time7£º%f\n",sum(time7));
-    fprintf("time8£º%f\n",sum(time8));
-    fprintf("time9£º%f\n",sum(time9));
-    fprintf("time10£º%f\n",sum(time10));
-    fprintf("time11£º%f\n",sum(time11));
-    fprintf("time12£º%f\n",sum(time12));
-    fprintf("time13£º%f\n",sum(time13));
-    fprintf("time14£º%f\n",sum(time14));
-    fprintf("time15£º%f\n",sum(time15));
-    fprintf("time16£º%f\n",sum(time16));
-    fprintf("time17£º%f\n",sum(time17));
-    fprintf("time18£º%f\n",sum(time18));
+    fprintf("time1ï¼š%f\n",sum(time1));
+    fprintf("time2ï¼š%f\n",sum(time2));
+    fprintf("time3ï¼š%f\n",sum(time3));
+    fprintf("time4ï¼š%f\n",sum(time4));
+    fprintf("time5ï¼š%f\n",sum(time5));
+    fprintf("time6ï¼š%f\n",sum(time6));
+    fprintf("time7ï¼š%f\n",sum(time7));
+    fprintf("time8ï¼š%f\n",sum(time8));
+    fprintf("time9ï¼š%f\n",sum(time9));
+    fprintf("time10ï¼š%f\n",sum(time10));
+    fprintf("time11ï¼š%f\n",sum(time11));
+    fprintf("time12ï¼š%f\n",sum(time12));
+    fprintf("time13ï¼š%f\n",sum(time13));
+    fprintf("time14ï¼š%f\n",sum(time14));
+    fprintf("time15ï¼š%f\n",sum(time15));
+    fprintf("time16ï¼š%f\n",sum(time16));
+    fprintf("time17ï¼š%f\n",sum(time17));
+    fprintf("time18ï¼š%f\n",sum(time18));
   
     
-    %¼ÆËã×îÓÅÖµ
+    %è®¡ç®—æœ€ä¼˜å€¼
     best_gwo(1,:)=sort(Group_Best_Score);
     best_gwo(2,:)=sort(Group_Best_Score_C);
     best_gwo(3,:)=sort(Group_Best_Score_M);
@@ -216,7 +216,7 @@ for fn=33:33
 
 
 
-    %¼ÆËã±ê×¼²î
+    %è®¡ç®—æ ‡å‡†å·®
     std_GWO(fn)=std(Group_Best_Score);
     std_GWO_C(fn)=std(Group_Best_Score_C);
     std_GWO_M(fn)=std(Group_Best_Score_M);
@@ -237,7 +237,7 @@ for fn=33:33
     std_GWO_sa(fn)=std(Group_Best_Score_sa);
 
 
-    %Çó×îÓÅÊÊÓ¦¶ÈÖµµÄ¾ùÖµ
+    %æ±‚æœ€ä¼˜é€‚åº”åº¦å€¼çš„å‡å€¼
     mean_F_best_score_GWO(fn)=mean(Group_Best_Score);
     mean_F_best_score_GWO_C(fn)=mean(Group_Best_Score_C);
     mean_F_best_score_GWO_M(fn)=mean(Group_Best_Score_M);
@@ -257,7 +257,7 @@ for fn=33:33
     mean_F_best_score_GWO_mo(fn)=mean(Group_Best_Score_mo);
     mean_F_best_score_GWO_sa(fn)=mean(Group_Best_Score_sa);
 
-    %Çó30´Î×îÓÅÊÊÓ¦¶ÈÖµµÄ×îÓÅÖµ
+    %æ±‚30æ¬¡æœ€ä¼˜é€‚åº”åº¦å€¼çš„æœ€ä¼˜å€¼
     best_F_best_score_GWO(fn)=min(Group_Best_Score);
     best_F_best_score_GWO_C(fn)=min(Group_Best_Score_C);
     best_F_best_score_GWO_M(fn)=min(Group_Best_Score_M);
@@ -277,7 +277,7 @@ for fn=33:33
     best_F_best_score_GWO_mo(fn)=min(Group_Best_Score_mo);
     best_F_best_score_GWO_sa(fn)=min(Group_Best_Score_sa);
 
-    %Çó30´Î×îÓÅÊÊÓ¦¶ÈÖµµÄ×î²îÖµ
+    %æ±‚30æ¬¡æœ€ä¼˜é€‚åº”åº¦å€¼çš„æœ€å·®å€¼
     worst_F_best_score_GWO(fn)=max(Group_Best_Score);
     worst_F_best_score_GWO_C(fn)=max(Group_Best_Score_C);
     worst_F_best_score_GWO_M(fn)=max(Group_Best_Score_M);
@@ -363,7 +363,7 @@ for fn=33:33
 
 
 
-    % ==========²¹³ä
+    % ==========è¡¥å……
     sIter(1:MaxIter)=0;
     sIter_C(1:MaxIter)=0;
     sIter_M(1:MaxIter)=0;
@@ -479,54 +479,7 @@ legend('GWO','GWO\_C','GWO\_M','GWO\_CM','GWO\_CMG','PSO','DE'...
 grid on;
 
 
-% figure(2);
-% % ½«Êı¾İºÏ²¢ÎªÒ»¸ö¾ØÕó
-% % A=log(IterCurve1);
-% % B=log(IterCurve_C1);
-% % C=log(IterCurve_M1);
-% % D=log(IterCurve_CM1);
-% % E=log(IterCurve_CMG1);
-% 
-% A=IterCurve1;
-% B=IterCurve_C1;
-% C=IterCurve_M1;
-% D=IterCurve_CM1;
-% E=IterCurve_G1;
-% % F=IterCurve_CMG1;
-% 
-% data = [A;B;C;D;E];
-% % data = [A;B;C;D;E;F];
-% 
-% % Éú³É¶ÔÓ¦µÄ×é±ğÏòÁ¿
-% group = [ones(length(A), 1);2*ones(length(B), 1);3*ones(length(C), 1);4*ones(length(D), 1);5*ones(length(E), 1)];
-% % group = [ones(length(A), 1);2*ones(length(B), 1);3*ones(length(C), 1);4*ones(length(D), 1);5*ones(length(E), 1);6*ones(length(F), 1)];
-% 
-% % »æÖÆºĞĞëÍ¼
-% figure;
-% boxplot(data, group, 'Labels', {'GWO', 'GWO_C','GWO_M','GWO_CM','GWO_G'});
-% % boxplot(data, group, 'Labels', {'GWO', 'GWO_C','GWO_M','GWO_CM','GWO_G','GWO_CMG'});
-% title('Box-and-whisker plots');
-% ylabel('Error Values');
-% % ylabel('Error Values(log)');
-% 
-% grid on;
-
-
-% % hold on;
-% % plot(x,mean_F_best_score_GWO(fn),'b*-');
-% % plot(x,mean_F_best_score_GWO_C(fn),'r^-');
-% % plot(x,mean_F_best_score_GWO_M(fn),'ko:','LineWidth',2);
-% % plot(x,mean_F_best_score_GWO_CM(fn),'cs-','LineWidth',2);
-% 
-% 
-% % fclose(fid);
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 function o = constraints(x)
@@ -541,7 +494,7 @@ function o = constraints(x)
     o = o / 2;
 end
 
-%% ×Óº¯ÊıÓÃÓÚ¶¨Òå±í´ïÊ½
+%% å­å‡½æ•°ç”¨äºå®šä¹‰è¡¨è¾¾å¼
 % F1
 
 function o = F1(x)
@@ -778,42 +731,6 @@ function o = F24(x)
     p3 =  pk;
     o =  p1 + p2 + p3;
 end
-% function o=F24(x)
-%     D=9;
-%     d=72.661;
-%     u = sum(x .* (1.2).^(D-1:-1:0));
-%     if u < d
-%         p1 = (u-d)^2;
-%     else
-%         p1 = 0;
-%     end
-% 
-%     v = sum(x .* (-1.2).^(D-1:-1:0));
-%     if v < d
-%         p2 = (v-d)^2;
-%     else
-%         p2 = 0;
-%     end
-% 
-%     m = 32*D;
-%     s = 1:m;
-%     w = zeros(1, m);
-%     for k = 1:m
-%        w(k) = sum(x.*(2*k/m - 1).^(D-1:-1:0));
-%     end
-% 
-%     pk = zeros(1, m);
-%     for k = 1:m
-%         if w(k) > 1
-%             pk(k) = (w(k)-1)^2;
-%         elseif w(k) < 1
-%             pk(k) = (w(k)+1)^2;
-%         end
-%     end
-%     p3 = sum(pk);
-%     o = p1 + p2 + p3;
-% end
-
 
 function o=F25(x)
     D=size(x,2);
@@ -962,38 +879,23 @@ function o=F32(x)
     o=(tmp1+tmp2+0.5)+1;
 end
 
-% function o=F33(x)
-%     D=size(x,2); 
-%     tmp1=0;
-%     tmp2=0;
-%     for d=1:D    
-%         tmp1=x(d)^2+tmp1;
-%         tmp2=cos(2*pi*x(d))+tmp2;
-%     end
-%     o=-20*exp(0.2*sqrt(tmp1/D))-exp(tmp2/D)+20+exp(1);
-% end
 
-% function o=F33(x)
-%     D=size(x,2); 
-%     x=x(1:D); 
-%     o=-20*exp(-0.2*sqrt(sum(x.^2)/D))-exp(sum(cos(2*pi*x))/D)+20+exp(1);
-% end
 function o = F33(x)
-    % Ackley º¯ÊıµÄ¶¨Òå
+    % Ackley å‡½æ•°çš„å®šä¹‰
     D=size(x,2);
     sum1 = sum(x.^2);
     sum2 = sum(cos(2*pi*x));
     o = -20*exp(-0.2*sqrt(sum1/D)) - exp(sum2/D) + 20 + exp(1);
 end
 
-% ÈÎÎñµ÷¶È
+% ä»»åŠ¡è°ƒåº¦
 function o=F50(x)
     task1=[714,500,886,500,886,826, 886, 714, 500, 886, 671, 714, 886, 500, 500, 714, 714, 826, 714, 886, 886, 886, 500, 826, 886, 886, 886, 826, 886, 886, 826, 800, 714, 500, 714, 714, 886, 886, 886, 886, 886, 886, 500, 826, 886, 714, 886, 886, 886, 714, 886, 886, 886, 671, 714, 500, 500, 886, 886, 886];
     task2=[];
     vmTasks = containers.Map('KeyType', 'int32', 'ValueType', 'any');
     dim = numel(task1);
     for i = 1:dim
-    % µÃµ½Ã¿¸öĞéÄâ»ú·ÖµÃµÄÈÎÎñĞòºÅ£¬´æÔÚ vmTasks MapÖĞ
+    % å¾—åˆ°æ¯ä¸ªè™šæ‹Ÿæœºåˆ†å¾—çš„ä»»åŠ¡åºå·ï¼Œå­˜åœ¨ vmTasks Mapä¸­
         if ~isKey(vmTasks, x(i))
             taskList = [];
             taskList(i)=i;
@@ -1018,7 +920,7 @@ function o=F50(x)
             length = length + task1(taskId);
         end
     
-        % ¼ÆËãÃ¿¸öĞéÄâ»úÍê³É·ÖÅäµÄÈÎÎñËùÓÃµÄÊ±¼ä, ÈÎÎñ×Ü³¤¶È/ĞéÄâ»úµÄMips
+        % è®¡ç®—æ¯ä¸ªè™šæ‹Ÿæœºå®Œæˆåˆ†é…çš„ä»»åŠ¡æ‰€ç”¨çš„æ—¶é—´, ä»»åŠ¡æ€»é•¿åº¦/è™šæ‹Ÿæœºçš„Mips
         runtime = length / 100;
         sumTime = sumTime + runtime;
         if makespan < runtime
@@ -1037,10 +939,6 @@ function o=F50(x)
 end
 
 % CEC2022
-
-% function f = cec22_func(x)
-%     func_num=1
-% end
 
 function sr_x = sr_func(x, Os, Mr,sh_rate, s_flag, r_flag)
     nx = size(x,2);
@@ -1695,13 +1593,13 @@ end
 
 % CEC2006 G9 G10
 % G9
-% G09Ä¿±êº¯Êı
+% G09ç›®æ ‡å‡½æ•°
 function f = F99(x)
     f = (x(1) - 10)^2 + 5 * (x(2) - 12)^2 + x(3)^4 + 3 * (x(4) - 11)^2 + ...
         10 * x(5)^6 + 7 * x(6)^2 + x(7)^4 - 4 * x(6) * x(7) - 10 * x(6) - 8 * x(7);
 end
 
-% G09Ô¼ÊøÌõ¼ş
+% G09çº¦æŸæ¡ä»¶
 function g = constraintsFunc_G09(x)
     g(1) = -127 + 2 * x(1)^2 + 3 * x(2)^4 + x(3) + 4 * x(4)^2 + 5 * x(5);
     g(2) = -282 + 7 * x(1) + 3 * x(2) + 10 * x(3)^2 + x(4) - x(5);
@@ -1711,66 +1609,17 @@ end
 
 
 % G10
-% G10Ä¿±êº¯Êı
+% G10ç›®æ ‡å‡½æ•°
 function f = F100(x)
-    f = x(1) + x(2) + x(3);  % Ä¿±êº¯Êı
+    f = x(1) + x(2) + x(3);  % ç›®æ ‡å‡½æ•°
 end
 
-% G10Ô¼ÊøÌõ¼ş
+% G10çº¦æŸæ¡ä»¶
 function g = constraintsFunc_G10(x)
     g(1) = -1 + 0.0025 * (x(4) + x(6));
     g(2) = -1 + 0.0025 * (x(5) + x(7) - x(4));
     g(3) = -1 + 0.01 * (x(8) - x(5));
-    g(4) = x(1) * x(6) - 833.33252 * x(4) - 100 * x(1) + 83333.333;
-    g(5) = x(2) * x(7) - 1250 * x(5) - x(2) * x(4) + 1250 * x(4);
-    g(6) = x(3) * x(8) - 1250000 - x(3) * x(5) + 2500 * x(5);
+    g(4) = -x(1) * x(6) + 833.33252 * x(4) + 100 * x(1) - 83333.333;
+    g(5) = -x(2) * x(7) + 1250 * x(5) + x(2) * x(4) - 1250 * x(4);
+    g(6) = -x(3) * x(8) + 1250000 + x(3) * x(5) - 2500 * x(5);
 end
-
-
-% CEC2017
-% function f = F34(x)
-%     nx = size(x,2);
-%     f = 0;
-%     Os=zeros(1, nx);
-%     Mr=zeros(1, nx*nx);
-%     s_flag=1;
-%     r_flag=1;
-% 
-%     sr_x = sr_func(x, Os, Mr,1, s_flag, r_flag); % shift and rotate
-% 
-%     for i = 1:nx
-%         z = sr_x(i);
-%         z = z + 4.209687462275036e+002;
-%         if z > 500
-%             f = f - (500.0 - mod(z, 500)) * sin(sqrt(500.0 - mod(z, 500)));
-%             tmp = (z - 500.0) / 100;
-%             f = f + tmp^2 / nx;
-%         elseif z < -500
-%             f = f - (-500.0 + mod(abs(z), 500)) * sin(sqrt(500.0 - mod(abs(z), 500)));
-%             tmp = (z + 500.0) / 100;
-%             f = f + tmp^2 / nx;
-%         else
-%             f = f - z * sin(sqrt(abs(z)));
-%         end
-%     end
-% 
-%     f = f + 4.189828872724338e+002 * nx;
-% end
-
-% function f = F36(x)
-%     nx = size(x,2);
-%     Os=zeros(1, nx);
-%     Mr=zeros(1, nx*nx);
-%     s_flag=1;
-%     r_flag=1;
-%     z = zeros(1, nx);
-%     sr_func(x, Os, Mr,1, s_flag, r_flag); % shift and rotate
-% 
-%     f = z(1)^2;
-%     for i = 2:nx
-%         f = f + (10^6) * z(i)^2;
-%     end
-% end
-
-
-
