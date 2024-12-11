@@ -1,4 +1,4 @@
-package algorithm;
+package main.java.algorithm;
 
 import CloudSim.CloudSimExe;
 import CloudSim.CloudSimPrint;
@@ -14,7 +14,7 @@ import java.util.*;
 import static CloudSim.CloudSimExe.getCloudletById;
 import static CloudSim.CloudSimPrint.getVmById;
 
-public class CMGWO2 {
+public class IBGWO {
 
     /**
      * 1 建模：
@@ -36,7 +36,7 @@ public class CMGWO2 {
     static Random random = new Random(System.currentTimeMillis());
     private static int AGENT = 20;      // 种群大小
     //    private static int DIMENSION = 2;
-    private static int MAX_IT = 100;
+    private static int MAX_IT = 500;
 
     private static int alpha;
     private static int beta;
@@ -50,14 +50,6 @@ public class CMGWO2 {
 
     static double crossoverProb = 0.9;
     static double mutationRate = 0.2;
-
-    static double max_makespan = 0;
-    static double min_makespan = Double.MAX_VALUE;
-    static double max_sumTime = 0;
-    static double min_sumTime = Double.MAX_VALUE;
-
-    static double max_RU = 0.1;
-    static double min_RU = 1;
 
     /**
      * 计算负载阈值
@@ -102,7 +94,7 @@ public class CMGWO2 {
         // Final step: Print results when simulation is over
         List<Cloudlet> newList = broker.getCloudletReceivedList();
 //        String finishTm = print.printCloudletList(newList);
-//        print.printCloudletList(newList);
+        print.printCloudletList(newList);
 
         CloudSim.stopSimulation();
 
@@ -111,7 +103,8 @@ public class CMGWO2 {
 //        }
 //        String finishTm = print.printCloudletList(newList);
 
-        System.out.println("========================CMGWO=============================");
+        System.out.println("========================IBGWO=============================");
+
         double finishTm = getMaxTimeOfSchedule(alphaPos);
         System.out.println("最大完成时间：" + finishTm);
 //
@@ -172,59 +165,13 @@ public class CMGWO2 {
     }
 
     public static int[] GWO() {
-        for (int i = 1; i <= MAX_IT; i++) {
+        for (int i = 0; i < MAX_IT; i++) {
             update(i);
-            updateByGA();
             update_wolves();
-//            if (i % 10 == 0) {
-//                System.out.println(fitness(alphaPos));
-//            }
-//            System.out.println(fitness(alphaPos));
-
         }
         return alphaPos;
     }
 
-    private static void updateByGA() {
-        for (int i = 0; i < AGENT; i++) {
-            int[] parent_1, parent_2;
-            int a = random.nextInt(3);
-            if (a == 0) {
-                parent_1 = betaPos;
-                parent_2 = deltaPos;
-            } else if (a == 1) {
-                parent_1 = alphaPos;
-                parent_2 = deltaPos;
-            } else {
-                parent_1 = alphaPos;
-                parent_2 = betaPos;
-            }
-
-            // 交叉
-            if (random.nextDouble() < crossoverProb) {
-                int crossPosition = new Random().nextInt(cloudletList.size() - 1);
-                for (int j = crossPosition + 1; j < cloudletList.size(); j++) {
-                    int tmp = parent_1[j];
-                    parent_1[j] = parent_2[j];
-                    parent_2[j] = tmp;
-                }
-            }
-            int[] tmp = fitness(parent_1) > fitness(parent_2) ? parent_2 : parent_1;
-            wolves.set(i, fitness(wolves.get(i)) > fitness(tmp) ? tmp : wolves.get(i));
-
-            // 变异
-            tmp = wolves.get(i);
-            if (random.nextDouble() < mutationRate) {
-
-                int mutationIndex = new Random().nextInt(cloudletList.size());
-                int newVmId = new Random().nextInt(vmList.size());
-                while (tmp[mutationIndex] == newVmId) {
-                    newVmId = new Random().nextInt(vmList.size());
-                }
-            }
-            wolves.set(i, fitness(wolves.get(i)) > fitness(tmp) ? tmp : wolves.get(i));
-        }
-    }
 
     public static void update_wolves() {
         // 更新三只头狼
@@ -264,7 +211,7 @@ public class CMGWO2 {
     private static void update(int iteration) {
         // 更新狼群
         double a = update_a(iteration);
-//        System.out.println("a:" + a);
+        //System.out.println(a);
         //new java.util.Scanner(System.in).nextLine();
         for (int i = 0; i < AGENT; i++) {
             int[] tempWolf = new int[cloudletList.size()];
@@ -343,38 +290,41 @@ public class CMGWO2 {
     }
 
     private static double update_a(double iteration) {
-//        return 2 - (iteration * (2 / ((double) MAX_IT - 1)));
-        double e = Math.E;
-        double a = 2 - 2 * ((Math.pow(e, iteration / MAX_IT) - 1) / (Math.pow(e, 1) - 1));
-        return a;
+        return 2 - 2 * ((Math.log(iteration / MAX_IT) - 1) / (Math.log(1) - 1));
     }
 
     private static double fitness(int[] schedule) {
-        // 初始化系数
-        double w1 = 0.6, w2 = 0.1, w3 = 0.3;
+        // 适应度值计算公式：fitness = w1 * loadBalance + w2 * normalizedRunTime
+
+//        // 初始化系数 W1 W2
+//        double w1 = 1, w2 = 1;
+//
+//        // 得到当前所有分配方案的总时间
+//        double sumRunTime = 0;
+//        for (int i = 0; i < AGENT; i++) {
+//            double tempTime = getSumTimeOfSchedule(wolves.get(i));
+//            sumRunTime += tempTime;
+//        }
+//        // 计算当前schedule的时间归一化值
+//        double normalizedRunTime = getSumTimeOfSchedule(schedule) / sumRunTime;
+//
+//        // 得到当前schedule的虚拟机最大处理时间、最小、平均
+//        double maxTime = 0, minTime = 100, avgTime = 0;
+//        maxTime = getMaxTimeOfSchedule(schedule);
+//        minTime = getMinTimeOfSchedule(schedule);
+//        avgTime = getSumTimeOfSchedule(schedule) / vmList.size();
+//
+//        // 计算不平衡度DI
+//        double loadImbalance = 0;
+//        loadImbalance = (maxTime - minTime) / avgTime;
+//
+//        // 计算适应度值
+//        double fitness = 0;
+//        fitness = w1 * loadImbalance + w2 * normalizedRunTime;
+
         double fitness = 0;
-        double makespan = getMaxTimeOfSchedule(schedule);
-        if (makespan > max_makespan) {
-            max_makespan = makespan;
-        } else if (makespan < min_makespan) {
-            min_makespan = makespan;
-        }
-        double sumTime = getSumTimeOfSchedule(schedule);
-        if (sumTime > max_sumTime) {
-            max_sumTime = sumTime;
-        } else if (sumTime < min_sumTime) {
-            min_sumTime = sumTime;
-        }
-        double RU = sumTime / makespan * vmList.size();
-        if (RU > max_RU) {
-            max_RU = RU;
-        } else if (RU < min_RU) {
-            min_RU = RU;
-        }
-        double nor_makespan = (makespan - min_makespan) / (max_makespan - min_makespan);
-        double nor_sumTime = (sumTime - min_sumTime) / (max_sumTime - min_sumTime);
-        double nor_RU = (RU - min_RU) / (max_RU - min_RU);
-        fitness = w1 * nor_makespan + w2 * nor_sumTime - w3 * nor_RU;
+        fitness = getMaxTimeOfSchedule(schedule);
+
         return fitness;
     }
 
@@ -423,7 +373,7 @@ public class CMGWO2 {
                 taskList.add(i);
                 vmTasks.put(schedule[i], taskList);
             } else {
-                 vmTasks.get(schedule[i]).add(i);
+                vmTasks.get(schedule[i]).add(i);
             }
         }
 
