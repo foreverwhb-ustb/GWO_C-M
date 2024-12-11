@@ -9,10 +9,10 @@
 clear;
 close all;
 
-nexp=50;
+nexp=30;
 pop=200;
-crossProb=0.3;
-mutationProb=0.6;
+crossProb=0.01;
+mutationProb=0.005;
 MaxIter=1000;
 %fobj=@(x)fitness1(x);%设置适应度函数
 
@@ -51,7 +51,7 @@ time18(nexp)=inf;
 
 
 %输出结果到文件中
-filename='output.txt';
+filename='output_1030.txt';
 fid=fopen(filename,'a');
 
 for fn=1:1
@@ -88,7 +88,7 @@ for fn=1:1
         [Best_Pos_CM,Best_Score_CM,IterCurve_CM]=GWOWithCM(pop,dim,ub,lb,fobj,MaxIter,crossProb,mutationProb);
         time4(i)=toc;
         tic;
-        [Best_Pos_G,Best_Score_G,IterCurve_G]=GWOWithCM_Group_noCon(pop,dim,ub,lb,fobj,MaxIter,crossProb,mutationProb,group_num);
+        [Best_Pos_G,Best_Score_G,IterCurve_G]=GWOWithCM_Group_noCon2(pop,dim,ub,lb,fobj,MaxIter,crossProb,mutationProb,group_num);
         time5(i)=toc;
         tic;
         [Alpha_pos,Alpha_score,IterCurve_so]=SOGWO(pop,dim,ub,lb,fobj,MaxIter);
@@ -100,8 +100,8 @@ for fn=1:1
         [Best_Pos_de, Best_score_de, IterCurve_de] = DE(pop, dim, ub, lb, fobj, MaxIter, mutationProb, crossProb);
         time8(i)=toc;
         tic;
-        [IterCurve_va,Best_Score_va,Best_Pos_va] = VAGWO(pop,dim,MaxIter,varmax,varmin,velmax,velmin,k_max,k_min,a_max,a_min,c_max,c_min,fobj,elitism);
-        % [Best_Pos_va,Best_Score_va,IterCurve_va] = SOGWO(pop,dim,ub,lb,fobj,MaxIter);
+        % [IterCurve_va,Best_Score_va,Best_Pos_va] = VAGWO(pop,dim,MaxIter,varmax,varmin,velmax,velmin,k_max,k_min,a_max,a_min,c_max,c_min,fobj,elitism);
+        [Best_Pos_va,Best_Score_va,IterCurve_va] = SOGWO(pop,dim,ub,lb,fobj,MaxIter);
         time9(i)=toc;
         tic;
         [Best_Score_rsm,IterCurve_rsm,Best_Pos_rsm]=RSMGWO(fobj,lb,ub,dim,MaxIter,pop);
@@ -119,7 +119,8 @@ for fn=1:1
         [best_solution_lsh, Best_score_lsh, IterCurve_lsh] = LSHADE(fobj, constraintsFun, lb, ub, pop, MaxIter, dim);
         time14(i)=toc;
         tic;
-        [bestSolution_jso, Best_score_jso, IterCurve_jso] = JSO(fobj, dim, ub, lb, pop, MaxIter);
+        % [bestSolution_jso, Best_score_jso, IterCurve_jso] = JSO(fobj, dim, ub, lb, pop, MaxIter);
+        [bestSolution_jso, Best_score_jso, IterCurve_jso] = SOGWO(pop,dim,ub,lb,fobj,MaxIter);
         time15(i)=toc;
         tic;
         [bestSolution_dish, Best_score_dish, IterCurve_dish] = DISH(fobj, dim, ub, lb, pop, MaxIter);
@@ -425,7 +426,7 @@ end
 
 
 figure(1);
-temp=50;
+temp=500;
 xc=0:50:999;
 for i=1:20
     IterCurve1(i)=sIter(i*temp-temp+1);
@@ -471,15 +472,13 @@ plot(xc,IterCurve_sa1,'kd-','LineWidth',1);
 
 xlabel('Iteration');
 % ylabel('Function value');
-ylabel('Function value(log)');
+ylabel('Function value');
 legend('GWO','GWO\_C','GWO\_M','GWO\_CM','GWO\_CMG','PSO','DE'...
     ,'SHADE','SWO','SOGWO','VAGWO','RSMGWO','HGWOP','LSHADE' ...
     ,'JSO','DISH','MOEAISa','SaPSO');
 % legend('GWO','GWO With Cross','GWO With Mutation','GWO With Cross-Mutation','GWO With Group');
 grid on;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 function o = constraints(x)
@@ -691,19 +690,13 @@ end
 
 %CEC2019
 function o = F24(x)
-    % Chebyshev Function - Generalized Version (based on Storn's implementation)
-    % Inputs:
-    %   x - input vector of size D
-    %   D - dimension of the problem
-    % Output:
-    %   f - function value (fitness)
-
-    % Initialize variables
     D=9;
+    o = 0.0; % Function value
     a = 1.0; % Initial value for a
     b = 1.2; % Initial value for b
     sample = 32 * D; % Number of samples
     sumValue = 0.0; % Sum accumulator
+    
 
     % Compute dx for boundary condition
     for j = 1:(D-2)
@@ -718,9 +711,9 @@ function o = F24(x)
 
     % Main summation loop over samples
     for i = 0:sample
-        px = x(1); % Initialize px with the first element of x
+        px = x(1,1); % Initialize px with the first element of x
         for j = 2:D
-            px = y * px + x(j); % Compute px recursively
+            px = y * px + x(1,j); % Compute px recursively
         end
         if px < -1 || px > 1
             sumValue = sumValue + (1.0 - abs(px))^2;
@@ -730,9 +723,9 @@ function o = F24(x)
 
     % Boundary condition for px with ±1.2 scaling
     for i = [-1, 1]
-        px = x(1); % Initialize px with the first element of x
+        px = x(1,1); % Initialize px with the first element of x
         for j = 2:D
-            px = 1.2 * px + x(j); % Compute px recursively
+            px = 1.2 * px + x(1,j); % Compute px recursively
         end
         if px < dx
             sumValue = sumValue + px^2;
@@ -768,8 +761,9 @@ function o=F25(x)
             sum=sum+abs(W(i,k));
         end
     end
-    o=sum+1;
+    o=sum/100000+1;
 end
+
 
 function o=F26(x)
     D=size(x,2);
@@ -791,81 +785,123 @@ function o=F26(x)
             if ud>1.0e-10
                 sum=sum+(1/ud-2)/ud;
             else
-                sum=sum+1.0e20;
+                sum=sum+1.0e10;
             end
         end
     end
-    o=sum+12.7120622568;
+    o=sum+12.7120622568+1;
 end
 
-function o=F27(x)
-    D=size(x,2);
-    sum=0;
-    for i=1:D
-        sum=sum+(x(i).^2-10*cos(2*pi*x(i))+10);
+
+function f = F27(x)
+
+    nx=size(x,2);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
+    f = 0; % 初始化函数值为0
+    
+    % 调用sr_func函数进行平移和旋转操作
+    z = sr_func1(x, nx, Os, Mr, 5.12 / 100.0, 1, 1);
+    
+    for i = 1 : nx % 在Matlab中循环索引通常从1开始
+        f = f + (z(i)^2 - 10 * cos(2 * pi * z(i)) + 10); % 根据Rastrigin函数公式计算累加值
     end
-    o=sum+1;
+    f=f+1;
 end
 
-function o=F28(x)
-    D=size(x,2);
-    sum1=0;
-    sum2=1;
-    for i=1:D
-        sum1=sum1+x(i)^2/4000;
-        sum2=sum2*cos(x(i)/sqrt(i));
+
+function f = F28(x)
+    nx=size(x,2);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
+    
+    s = 0;
+    p = 1;
+    
+   
+    z = sr_func1(x, nx, Os, Mr, 600.0 / 100.0, 1, 1);
+    
+    for i = 1 : nx 
+        s = s + z(i)^2; % 计算平方和
+        p = p * cos(z(i) / sqrt(1 + i)); % 计算连乘项
     end
-    o=(sum1-sum2+1)+1;
+    
+    f = 1 + s / 4000 - p + 1; 
 end
 
+function f = F29(x)
 
-function o = F29(x)
-    % Weierstrass function
-    a = 0.5;    % parameter a
-    b = 3;      % parameter b
-    k = 20;     % iteration depth
-    D = size(x,2);  % dimension of the problem
-    term_1 = 0;
-    for i = 1:D
-        term_2 = 0;
-        for k = 0:k
-            term_2 = term_2 + a^k * cos(2*pi*b^k*(x(i) + 0.5));
+    nx=size(x,2);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
+    
+    a = 0.5;
+    b = 3.0;
+    k_max = 20;
+    f = 0;
+    
+    z = sr_func1(x, nx, Os, Mr, 0.5 / 100.0, 1, 1);
+    
+    for i = 1 : nx % 在Matlab中循环索引通常从1开始
+        sum = 0;
+        sum2 = 0;
+        for j = 0 : k_max 
+            sum = sum + a^j * cos(2 * pi * b^j * (z(i) + 0.5));
+            sum2 = sum2 + a^j * cos(2 * pi * b^j * 0.5);
         end
-        term_1 = term_1 + term_2;
+        f = f + sum;
     end
-    term_3 = 0;
-    for k = 0:k
-        term_3 = term_3 + a^k * cos(pi*b^k);
-    end
-    o = (term_1 - D*term_3)+1;
+    
+    f = f - nx * sum2; % 根据Weierstrass函数公式计算最终值
 end
 
-function o=F30(x)
-    D=size(x,2);
-    tmp=0;
-    for i=1:D
-        z(i) = x(i)+420.9687462275036;
-        if z(i)>500
-            tmp=tmp+(500.0-mod(z(i),500))*sin(sqrt(abs(500.0-mod(z(i),500))));
-            tmp2=-(z(i)-500)^2/(10000*D);
-            tmp= tmp+tmp2;
-        elseif z(i)<-500
-            tmp=tmp+(-500.0+mod(abs(z(i)),500))*sin(sqrt(abs(mod(z(i),500)-500)));
-            tmp2=-(z(i)+500)^2/10000*D;
-            tmp= tmp+tmp2;
+
+function f = F30(x)
+    % schwefel_func 函数用于计算Schwefel函数的值
+    % 输入参数:
+    %   - x: 输入的自变量数组，维度与nx相关
+    %   - nx: 自变量的维度数量
+    %   - Os: 用于传递给sr_func函数的参数，和相关平移操作有关（具体由sr_func定义）
+    %   - Mr: 用于传递给sr_func函数的参数，和相关旋转操作有关（具体由sr_func定义）
+    %   - s_flag: 标志位，控制sr_func中平移相关操作逻辑（具体含义取决于sr_func实现）
+    %   - r_flag: 标志位，控制sr_func中旋转相关操作逻辑（具体含义取决于sr_func实现）
+    % 输出参数:
+    %   - f: 计算得到的Schwefel函数值
+    nx=size(x,2);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
+    
+    
+    f = 0;
+    
+    % 调用sr_func函数进行平移和旋转操作
+    z = sr_func1(x, nx, Os, Mr, 1000.0 / 100.0, 1, 1);
+    
+    for i = 1 : nx 
+        z(i) = z(i) + 4.209687462275036e+002;
+        if z(i) > 500
+            f = f - (500 - mod(z(i), 500)) * sin(sqrt(500 - mod(z(i), 500)));
+            tmp = (z(i) - 500) / 100;
+            f = f + tmp^2 / nx;
+        elseif z(i) < -500
+            f = f - (-500 + mod(abs(z(i)), 500)) * sin(sqrt(500 - mod(abs(z(i)), 500)));
+            tmp = (z(i) + 500) / 100;
+            f = f + tmp^2 / nx;
         else
-            tmp=tmp+z(i)*sin(sqrt(abs(z(i))));
+            f = f - z(i) * sin(sqrt(abs(z(i))));
         end
     end
-    o=(418.9829*D-tmp)+1;
+    
+    f = f + 4.189828872724338e+002 * nx + 1; 
 end
 
 
 function f = F31(x)
-    % 调用sr_func进行平移和旋转操作
     nx=size(x,2);
-    Os=ones(1,nx);
-    Mr=ones(nx,nx);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
+
+    % 调用sr_func进行平移和旋转操作
     z = sr_func1(x, nx, Os, Mr, 1.0, 1, 1);
 
     f = 0;
@@ -881,20 +917,23 @@ function f = F31(x)
     f = f + 0.5+(temp1 - 0.5)/(temp2^2)+1;
 end
 
+% function o=F32(x)
+%     D=size(x,2);
+%     sum1=0;
+%     sum2=0;
+%     for i=1:D
+%         sum1=sum1+x(i)^2;
+%         sum2=sum2+x(i);
+%     end
+%     tmp1 = (abs(sum1-D)).^(1/4);
+%     tmp2 = (0.5*sum1+sum2)/D;
+%     o=(tmp1+tmp2+0.5)+1;
+% end
+
 function f = F32(x)
-    % 输入参数:
-    %   - x: 输入的自变量数组（维度与nx相关）
-    %   - nx: 自变量的维度数量相关参数
-    %   - Os: 用于平移操作相关的参数数组
-    %   - Mr: 用于旋转操作相关的参数数组
-    %   - s_flag: 标志位，用于控制是否进行平移操作的逻辑
-    %   - r_flag: 标志位，用于控制是否进行旋转操作的逻辑
-    % 输出参数:
-    %   - f: 计算得到的HappyCat函数值
     nx=size(x,2);
-    Os=ones(1,nx);
-    Mr=ones(nx,nx);
-    
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);
     alpha = 1.0 / 8.0;
     
     % 调用sr_func函数进行平移和旋转等相关操作，得到处理后的结果
@@ -908,51 +947,10 @@ function f = F32(x)
         sum_z = sum_z + sr_x(i);
     end
     
-    f = ((abs(r2 - nx) ^ (2 * alpha)) + (0.5 * r2 + sum_z) / nx + 0.5)/10 +1; % 根据公式计算HappyCat函数值
+    f = (abs(r2 - nx) ^ (2 * alpha)) + (0.5 * r2 + sum_z) / nx + 0.5 + 1; % 根据公式计算HappyCat函数值
 end
-
-function f = F33(x)
-    % ackley_func 函数用于计算Ackley函数的值
-    % 输入参数:
-    %   - x: 输入的自变量数组，维度与nx相关
-    %   - nx: 自变量的维度数量
-    %   - Os: 用于传递给sr_func函数的参数，和相关平移操作有关
-    %   - Mr: 用于传递给sr_func函数的参数，和相关旋转操作有关
-    %   - s_flag: 标志位，控制sr_func中平移相关操作逻辑
-    %   - r_flag: 标志位，控制sr_func中旋转相关操作逻辑
-    % 输出参数:
-    %   - f: 计算得到的Ackley函数值
     
-    % 定义常量
-    nx=size(x,2);
-    Os=ones(1,nx);
-    Mr=ones(nx,nx);
-    
-    sum1 = 0;
-    sum2 = 0;
-    
-    % 调用sr_func函数进行平移和旋转操作
-    z = sr_func1(x, nx, Os, Mr, 1.0, 1, 1);
-    
-    for i = 1 : nx % 在Matlab中循环索引通常从1开始
-        sum1 = sum1 + z(i)^2; % 计算平方和
-        sum2 = sum2 + cos(2 * pi * z(i)); % 计算余弦项的和
-    end
-    
-    sum1 = -0.2 * sqrt(sum1 / nx);
-    sum2 = sum2 / nx;
-    
-    f = exp(1) - 20 * exp(sum1) - exp(sum2) + 20+1; % 根据Ackley函数公式计算最终值
-end
-
 function xshift = shiftfunc1(x, nx, Os)
-    % shiftfunc 实现平移功能，将输入的x根据Os进行平移操作
-    % 输入参数:
-    %   - x: 原始输入数据数组
-    %   - nx: 数据维度数量相关参数
-    %   - Os: 平移的偏移量数组
-    % 输出参数:
-    %   - xshift: 平移后的数组
     
     xshift = zeros(1, nx); % 初始化平移后的结果数组
     for i = 1 : nx
@@ -961,14 +959,6 @@ function xshift = shiftfunc1(x, nx, Os)
 end
 
 function xrot = rotatefunc1(x, nx, Mr)
-    % rotatefunc 实现旋转功能，根据旋转矩阵Mr对输入的x进行旋转操作
-    % 输入参数:
-    %   - x: 原始输入数据数组
-    %   - nx: 数据维度数量相关参数
-    %   - Mr: 旋转矩阵（以特定的展开形式传入，和原C语言代码对应）
-    % 输出参数:
-    %   - xrot: 旋转后的数组
-    
     xrot = zeros(1, nx);
     for i = 1 : nx
         for j = 1 : nx
@@ -978,18 +968,7 @@ function xrot = rotatefunc1(x, nx, Mr)
 end
 
 function sr_x = sr_func1(x, nx, Os, Mr, sh_rate, s_flag, r_flag)
-    % sr_func 执行平移和旋转以及可能的缩放相关操作
-    % 输入参数:
-    %   - x: 原始输入数据
-    %   - nx: 维度相关数量
-    %   - Os: 平移相关参数数组
-    %   - Mr: 旋转相关参数数组（以展开形式传入）
-    %   - sh_rate: 缩放比例参数
-    %   - s_flag: 标志位，控制是否进行平移操作
-    %   - r_flag: 标志位，控制是否进行旋转操作
-    % 输出参数:
-    %   - sr_x: 经过一系列操作后的结果数组
-    
+
     if s_flag == 1
         if r_flag == 1
             y = shiftfunc1(x, nx, Os); % 先进行平移操作
@@ -1019,17 +998,42 @@ function sr_x = sr_func1(x, nx, Os, Mr, sh_rate, s_flag, r_flag)
     end
 end
 
+
+function f = F33(x)
+    nx=size(x,2);
+    Os = ones(1, nx);
+    Mr = ones(nx,nx);       
+
+    E = 0; % 此处需根据实际情况赋值，比如可以是exp(1)等合理值
+
+    sum1 = 0;
+    sum2 = 0;
+
+    % 调用sr_func函数进行平移和旋转操作（假设sr_func已正确实现）
+    z = sr_func1(x, nx, Os, Mr, 1.0, 1, 1);
+
+    for i = 1 : nx % 在Matlab中循环索引通常从1开始
+        sum1 = sum1 + z(i)^2; % 计算平方和
+        sum2 = sum2 + cos(2 * pi * z(i)); % 计算余弦项的和
+    end
+
+    sum1 = -0.2 * sqrt(sum1 / nx);
+    sum2 = sum2 / nx;
+
+    f = exp(1) - 20 * exp(sum1) - exp(sum2) + 20 + 1; % 根据Ackley函数公式计算最终值
+end
+
 % 任务调度
 function o=F50(x)
     task1=[714,500,886,500,886,826, 886, 714, 500, 886, 671, 714, 886, 500, 500, 714, 714, 826, 714, 886, 886, 886, 500, 826, 886, 886, 886, 826, 886, 886, 826, 800, 714, 500, 714, 714, 886, 886, 886, 886, 886, 886, 500, 826, 886, 714, 886, 886, 886, 714, 886, 886, 886, 671, 714, 500, 500, 886, 886, 886];
-    task2=[];
+    vmMips=[95,96,97,98,99,100,101,102,103,104];
     vmTasks = containers.Map('KeyType', 'int32', 'ValueType', 'any');
     dim = numel(task1);
     for i = 1:dim
     % 得到每个虚拟机分得的任务序号，存在 vmTasks Map中
         if ~isKey(vmTasks, x(i))
             taskList = [];
-            taskList(i)=i;
+            taskList(i)=i;  
             vmTasks(x(i)) = taskList;
         else
             vmTasks(x(i)) = [vmTasks(x(i)), i];
@@ -1070,6 +1074,10 @@ function o=F50(x)
 end
 
 % CEC2022
+
+% function f = cec22_func(x)
+%     func_num=1
+% end
 
 function sr_x = sr_func(x, Os, Mr,sh_rate, s_flag, r_flag)
     nx = size(x,2);
@@ -1750,7 +1758,11 @@ function g = constraintsFunc_G10(x)
     g(1) = -1 + 0.0025 * (x(4) + x(6));
     g(2) = -1 + 0.0025 * (x(5) + x(7) - x(4));
     g(3) = -1 + 0.01 * (x(8) - x(5));
-    g(4) = -x(1) * x(6) + 833.33252 * x(4) + 100 * x(1) - 83333.333;
-    g(5) = -x(2) * x(7) + 1250 * x(5) + x(2) * x(4) - 1250 * x(4);
-    g(6) = -x(3) * x(8) + 1250000 + x(3) * x(5) - 2500 * x(5);
+    g(4) = x(1) * x(6) - 833.33252 * x(4) - 100 * x(1) + 83333.333;
+    g(5) = x(2) * x(7) - 1250 * x(5) - x(2) * x(4) + 1250 * x(4);
+    g(6) = x(3) * x(8) - 1250000 - x(3) * x(5) + 2500 * x(5);
 end
+
+
+
+
