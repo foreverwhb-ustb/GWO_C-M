@@ -691,45 +691,56 @@ end
 
 %CEC2019
 function o = F24(x)
-    D =9;
-    p1 = 0.0;
-    p2 = 0.0;
-    p3 = 0.0;
-    d = 72.661;
-    u = 0.0;
-    v = 0.0;
-    wk = 0.0;
-    pk= 0.0;
-    m = 32*D;
-    
-    for i=1 : D
-       u = u+ x(1,i) * (1.2)^(D-i);
+    % Chebyshev Function - Generalized Version (based on Storn's implementation)
+    % Inputs:
+    %   x - input vector of size D
+    %   D - dimension of the problem
+    % Output:
+    %   f - function value (fitness)
+
+    % Initialize variables
+    D=9;
+    a = 1.0; % Initial value for a
+    b = 1.2; % Initial value for b
+    sample = 32 * D; % Number of samples
+    sumValue = 0.0; % Sum accumulator
+
+    % Compute dx for boundary condition
+    for j = 1:(D-2)
+        dx = 2.4 * b - a;
+        a = b;
+        b = dx;
     end
-    if u < d
-        p1 = (u-d)^2;
+
+    % Compute dy (step size in y direction)
+    dy = 2.0 / sample;
+    y = -1.0; % Start from -1
+
+    % Main summation loop over samples
+    for i = 0:sample
+        px = x(1); % Initialize px with the first element of x
+        for j = 2:D
+            px = y * px + x(j); % Compute px recursively
+        end
+        if px < -1 || px > 1
+            sumValue = sumValue + (1.0 - abs(px))^2;
+        end
+        y = y + dy; % Increment y
     end
-      
-    for i=1 : D
-       v = v+ x(1,i) * (-1.2)^(D-i);
+
+    % Boundary condition for px with ±1.2 scaling
+    for i = [-1, 1]
+        px = x(1); % Initialize px with the first element of x
+        for j = 2:D
+            px = 1.2 * px + x(j); % Compute px recursively
+        end
+        if px < dx
+            sumValue = sumValue + px^2;
+        end
     end
-    if v < d
-        p2 = (v-d)^2;
-    end
-    
-    for k=0 :m
-    for i=1 : D
-       wk = wk+ x(1,i) * ((2*k/m)-1)^(D-i);
-    end
-    if wk > d
-        pk = pk+ (wk-d)^2;
-    elseif wk < d
-        pk = pk +(wk+d)^2;
-    else
-        pk = pk +0.0;
-    end
-    end
-    p3 =  pk;
-    o =  p1 + p2 + p3;
+
+    % Final fitness value
+    o = sumValue+1;
 end
 
 function o=F25(x)
@@ -850,42 +861,162 @@ function o=F30(x)
 end
 
 
-function o=F31(x)
-    D=size(x,2);
-    sum=0;
-    for i=1:D-1
-        temp1 = sin(sqrt(x(i)^2+x(i+1)^2));
-        temp1 =temp1^2;
-        temp2 = 1.0 + 0.001*(x(i)^2+x(i+1)^2);
-        sum= sum+0.5 + (temp1-0.5)/(temp2^2);
+function f = F31(x)
+    % 调用sr_func进行平移和旋转操作
+    nx=size(x,2);
+    Os=ones(1,nx);
+    Mr=ones(nx,nx);
+    z = sr_func1(x, nx, Os, Mr, 1.0, 1, 1);
+
+    f = 0;
+    for i = 1 : nx - 1
+        temp1 = sin(sqrt(z(i)^2 + z(i + 1)^2));
+        temp1 = temp1^2;
+        temp2 = 1 + 0.001*(z(i)^2 + z(i + 1)^2);
+        f = f + 0.5+(temp1 - 0.5)/(temp2^2);
     end
-    temp1 = sin(sqrt(x(D)^2+x(1)^2));
-    temp1 =temp1^2;
-    temp2 = 1.0 + 0.001*(x(D)^2+x(1)^2);
-    sum=sum+0.5 + (temp1-0.5)/(temp2^2);
-    o=sum+1;
+    temp1 = sin(sqrt(z(nx)^2 + z(1)^2));
+    temp1 = temp1^2;
+    temp2 = 1 + 0.001*(z(nx)^2 + z(1)^2);
+    f = f + 0.5+(temp1 - 0.5)/(temp2^2)+1;
 end
 
-function o=F32(x)
-    D=size(x,2);
-    sum1=0;
-    sum2=0;
-    for i=1:D
-        sum1=sum1+x(i)^2;
-        sum2=sum2+x(i);
+function f = F32(x)
+    % 输入参数:
+    %   - x: 输入的自变量数组（维度与nx相关）
+    %   - nx: 自变量的维度数量相关参数
+    %   - Os: 用于平移操作相关的参数数组
+    %   - Mr: 用于旋转操作相关的参数数组
+    %   - s_flag: 标志位，用于控制是否进行平移操作的逻辑
+    %   - r_flag: 标志位，用于控制是否进行旋转操作的逻辑
+    % 输出参数:
+    %   - f: 计算得到的HappyCat函数值
+    nx=size(x,2);
+    Os=ones(1,nx);
+    Mr=ones(nx,nx);
+    
+    alpha = 1.0 / 8.0;
+    
+    % 调用sr_func函数进行平移和旋转等相关操作，得到处理后的结果
+    sr_x = sr_func1(x, nx, Os, Mr, 5.0 / 100.0, 1, 1);
+    
+    r2 = 0;
+    sum_z = 0;
+    for i = 1 : nx % 在Matlab中循环索引通常从1开始
+        sr_x(i) = sr_x(i) - 1.0; % 将坐标值向原点平移
+        r2 = r2 + sr_x(i) ^ 2; % 计算坐标的平方和，Matlab中用^表示幂运算
+        sum_z = sum_z + sr_x(i);
     end
-    tmp1 = (abs(sum1-D)).^(1/4);
-    tmp2 = (0.5*sum1+sum2)/D;
-    o=(tmp1+tmp2+0.5)+1;
+    
+    f = ((abs(r2 - nx) ^ (2 * alpha)) + (0.5 * r2 + sum_z) / nx + 0.5)/10 +1; % 根据公式计算HappyCat函数值
 end
 
+function f = F33(x)
+    % ackley_func 函数用于计算Ackley函数的值
+    % 输入参数:
+    %   - x: 输入的自变量数组，维度与nx相关
+    %   - nx: 自变量的维度数量
+    %   - Os: 用于传递给sr_func函数的参数，和相关平移操作有关
+    %   - Mr: 用于传递给sr_func函数的参数，和相关旋转操作有关
+    %   - s_flag: 标志位，控制sr_func中平移相关操作逻辑
+    %   - r_flag: 标志位，控制sr_func中旋转相关操作逻辑
+    % 输出参数:
+    %   - f: 计算得到的Ackley函数值
+    
+    % 定义常量
+    nx=size(x,2);
+    Os=ones(1,nx);
+    Mr=ones(nx,nx);
+    
+    sum1 = 0;
+    sum2 = 0;
+    
+    % 调用sr_func函数进行平移和旋转操作
+    z = sr_func1(x, nx, Os, Mr, 1.0, 1, 1);
+    
+    for i = 1 : nx % 在Matlab中循环索引通常从1开始
+        sum1 = sum1 + z(i)^2; % 计算平方和
+        sum2 = sum2 + cos(2 * pi * z(i)); % 计算余弦项的和
+    end
+    
+    sum1 = -0.2 * sqrt(sum1 / nx);
+    sum2 = sum2 / nx;
+    
+    f = exp(1) - 20 * exp(sum1) - exp(sum2) + 20+1; % 根据Ackley函数公式计算最终值
+end
 
-function o = F33(x)
-    % Ackley 函数的定义
-    D=size(x,2);
-    sum1 = sum(x.^2);
-    sum2 = sum(cos(2*pi*x));
-    o = -20*exp(-0.2*sqrt(sum1/D)) - exp(sum2/D) + 20 + exp(1);
+function xshift = shiftfunc1(x, nx, Os)
+    % shiftfunc 实现平移功能，将输入的x根据Os进行平移操作
+    % 输入参数:
+    %   - x: 原始输入数据数组
+    %   - nx: 数据维度数量相关参数
+    %   - Os: 平移的偏移量数组
+    % 输出参数:
+    %   - xshift: 平移后的数组
+    
+    xshift = zeros(1, nx); % 初始化平移后的结果数组
+    for i = 1 : nx
+        xshift(i) = x(i) - Os(i);
+    end
+end
+
+function xrot = rotatefunc1(x, nx, Mr)
+    % rotatefunc 实现旋转功能，根据旋转矩阵Mr对输入的x进行旋转操作
+    % 输入参数:
+    %   - x: 原始输入数据数组
+    %   - nx: 数据维度数量相关参数
+    %   - Mr: 旋转矩阵（以特定的展开形式传入，和原C语言代码对应）
+    % 输出参数:
+    %   - xrot: 旋转后的数组
+    
+    xrot = zeros(1, nx);
+    for i = 1 : nx
+        for j = 1 : nx
+            xrot(i) = xrot(i) + x(j) * Mr((i - 1) * nx + j); % 根据旋转逻辑计算，注意Matlab索引从1开始调整计算方式
+        end
+    end
+end
+
+function sr_x = sr_func1(x, nx, Os, Mr, sh_rate, s_flag, r_flag)
+    % sr_func 执行平移和旋转以及可能的缩放相关操作
+    % 输入参数:
+    %   - x: 原始输入数据
+    %   - nx: 维度相关数量
+    %   - Os: 平移相关参数数组
+    %   - Mr: 旋转相关参数数组（以展开形式传入）
+    %   - sh_rate: 缩放比例参数
+    %   - s_flag: 标志位，控制是否进行平移操作
+    %   - r_flag: 标志位，控制是否进行旋转操作
+    % 输出参数:
+    %   - sr_x: 经过一系列操作后的结果数组
+    
+    if s_flag == 1
+        if r_flag == 1
+            y = shiftfunc1(x, nx, Os); % 先进行平移操作
+            for i = 1 : nx
+                y(i) = y(i) * sh_rate; % 进行缩放操作
+            end
+            sr_x = rotatefunc1(y, nx, Mr); % 最后进行旋转操作
+        else
+            sr_x = shiftfunc1(x, nx, Os); % 只进行平移操作
+            for i = 1 : nx
+                sr_x(i) = sr_x(i) * sh_rate; % 进行缩放操作
+            end
+        end
+    else
+        if r_flag == 1
+            y = x;
+            for i = 1 : nx
+                y(i) = y(i) * sh_rate; % 先进行缩放操作
+            end
+            sr_x = rotatefunc1(y, nx, Mr); % 再进行旋转操作
+        else
+            sr_x = x;
+            for i = 1 : nx
+                sr_x(i) = sr_x(i) * sh_rate; % 直接进行缩放操作
+            end
+        end
+    end
 end
 
 % 任务调度
